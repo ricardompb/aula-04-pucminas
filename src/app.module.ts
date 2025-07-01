@@ -11,22 +11,26 @@ import { UsersModule } from './users/users.module';
 import { UserEntity } from './users/entities/user.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    SequelizeModule.forRoot({
-      dialect: 'postgres',
-      host: 'postgres',
-      port: 5432,
-      username: 'postgres',
-      password: '123456',
-      database: 'aula-04',
-      models: [ProdutoModel, EstoqueModel, UserEntity],
-      autoLoadModels: true,
-      synchronize: true,
-      sync: {
-        alter: true,
-      },
+    ConfigModule.forRoot(),
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        dialect: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: +configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        models: [ProdutoModel, EstoqueModel, UserEntity],
+        autoLoadModels: true,
+        synchronize: true,
+        sync: { alter: true },
+      }),
+      inject: [ConfigService],
     }),
     SequelizeModule.forFeature([ProdutoModel, EstoqueModel, UserEntity]),
     AuthModule,

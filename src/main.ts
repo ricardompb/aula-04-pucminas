@@ -30,4 +30,4 @@ async function bootstrap() {
     logger.log(`Servidor rodando em http://localhost:${port}/docs`);
   });
 }
-bootstrap();
+bootstrap().catch();
